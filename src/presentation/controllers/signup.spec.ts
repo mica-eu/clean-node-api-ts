@@ -1,4 +1,5 @@
 import { SignupController } from './signup'
+import MissingParamError from '../errors/missing-param-error'
 
 describe('Sugnup Controller', () => {
   test('Should returns 400 if no name is provide', () => {
@@ -14,7 +15,7 @@ describe('Sugnup Controller', () => {
 
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(
-      new Error('Missing param: name')
+      new MissingParamError('name')
     )
   })
 
@@ -31,7 +32,7 @@ describe('Sugnup Controller', () => {
 
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(
-      new Error('Missing param: email')
+      new MissingParamError('email')
     )
   })
 })
