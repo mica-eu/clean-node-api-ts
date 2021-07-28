@@ -138,7 +138,7 @@ describe('Sugnup Controller', () => {
     const { sut, emailValidatorStub } = makeSut()
 
     jest.spyOn(emailValidatorStub, 'isValid')
-      .mockImplementation(() => {
+      .mockImplementationOnce(() => {
         throw new Error()
       })
 
