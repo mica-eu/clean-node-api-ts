@@ -9,6 +9,7 @@ export class SignupController implements Controller {
     this.emailValidator = emailValidator
   }
 
+  // ts-disable-next-line
   handle (httpRequest: HttpRequest): HttpResponse {
     try {
       const requredFields = ['name', 'email', 'password', 'passwordConfirmation']
@@ -17,6 +18,10 @@ export class SignupController implements Controller {
         if (!httpRequest.body[field]) {
           return badRequest(new MissingParamError(field))
         }
+      }
+
+      if (httpRequest.body.password !== httpRequest.body.passwordConfirmation) {
+        return badRequest(new InvalidParamError('passwordConfirmation'))
       }
 
       if (!this.emailValidator.isValid(httpRequest.body.email)) {
