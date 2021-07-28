@@ -93,6 +93,24 @@ describe('Sugnup Controller', () => {
     )
   })
 
+  test('Should returns 400 if password confirmation fails', () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'any_email@mail.com',
+        password: 'any_password_123',
+        passwordConfirmation: 'invalid_password'
+      }
+    }
+    const httpResponse = sut.handle(httpRequest)
+
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(
+      new InvalidParamError('passwordConfirmation')
+    )
+  })
+
   test('Should returns 400 if an invalid email is provide', () => {
     const { sut, emailValidatorStub } = makeSut()
 
