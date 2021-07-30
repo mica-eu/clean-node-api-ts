@@ -20,13 +20,13 @@ const makeEmailValidator = (): EmailValidator => {
 
 const makeAddAccount = (): AddAccount => {
   class AddAccountStub implements AddAccount {
-    add (account: AddAccountModel): AccountModel {
-      return {
+    async add (account: AddAccountModel): Promise<AccountModel> {
+      return await Promise.resolve({
         id: 'valid_id',
         name: 'valid_name',
         email: 'valid_email@mail.com',
         password: 'valid_password'
-      }
+      })
     }
   }
 
@@ -43,7 +43,7 @@ const makeSut = (): SutTypes => {
 }
 
 describe('Sugnup Controller', () => {
-  test('Should returns 400 if no name is provide', () => {
+  test('Should returns 400 if no name is provide', async () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
@@ -52,7 +52,7 @@ describe('Sugnup Controller', () => {
         passwordConfirmation: 'any_password_123'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(
@@ -60,7 +60,7 @@ describe('Sugnup Controller', () => {
     )
   })
 
-  test('Should returns 400 if no email is provide', () => {
+  test('Should returns 400 if no email is provide', async () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
@@ -69,7 +69,7 @@ describe('Sugnup Controller', () => {
         passwordConfirmation: 'any_password_123'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(
@@ -77,7 +77,7 @@ describe('Sugnup Controller', () => {
     )
   })
 
-  test('Should returns 400 if no password is provide', () => {
+  test('Should returns 400 if no password is provide', async () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
@@ -86,7 +86,7 @@ describe('Sugnup Controller', () => {
         passwordConfirmation: 'any_password_123'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(
@@ -94,7 +94,7 @@ describe('Sugnup Controller', () => {
     )
   })
 
-  test('Should returns 400 if no password confirmation is provide', () => {
+  test('Should returns 400 if no password confirmation is provide', async () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
@@ -103,7 +103,7 @@ describe('Sugnup Controller', () => {
         password: 'any_password_123'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(
@@ -111,7 +111,7 @@ describe('Sugnup Controller', () => {
     )
   })
 
-  test('Should returns 400 if password confirmation fails', () => {
+  test('Should returns 400 if password confirmation fails', async () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
@@ -121,7 +121,7 @@ describe('Sugnup Controller', () => {
         passwordConfirmation: 'invalid_password'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(
@@ -129,7 +129,7 @@ describe('Sugnup Controller', () => {
     )
   })
 
-  test('Should returns 400 if an invalid email is provide', () => {
+  test('Should returns 400 if an invalid email is provide', async () => {
     const { sut, emailValidatorStub } = makeSut()
 
     jest.spyOn(emailValidatorStub, 'isValid')
@@ -143,7 +143,7 @@ describe('Sugnup Controller', () => {
         passwordConfirmation: 'any_password_123'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(
@@ -151,7 +151,7 @@ describe('Sugnup Controller', () => {
     )
   })
 
-  test('Should call EmailValidator with correct email', () => {
+  test('Should call EmailValidator with correct email', async () => {
     const { sut, emailValidatorStub } = makeSut()
 
     const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
@@ -165,12 +165,12 @@ describe('Sugnup Controller', () => {
       }
     }
 
-    sut.handle(httpRequest)
+    await sut.handle(httpRequest)
 
     expect(isValidSpy).toHaveBeenCalledWith('any_email@mail.com')
   })
 
-  test('Should returns 500 if EmailValidator throws', () => {
+  test('Should returns 500 if EmailValidator throws', async () => {
     const { sut, emailValidatorStub } = makeSut()
 
     jest.spyOn(emailValidatorStub, 'isValid')
@@ -186,7 +186,8 @@ describe('Sugnup Controller', () => {
         passwordConfirmation: 'any_password_123'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+
+    const httpResponse = await sut.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(
@@ -194,7 +195,7 @@ describe('Sugnup Controller', () => {
     )
   })
 
-  test('Should call AddAccount with correct values', () => {
+  test('Should call AddAccount with correct values', async () => {
     const { sut, addAccountStub } = makeSut()
 
     const addSpy = jest.spyOn(addAccountStub, 'add')
@@ -208,7 +209,7 @@ describe('Sugnup Controller', () => {
       }
     }
 
-    sut.handle(httpRequest)
+    await sut.handle(httpRequest)
 
     expect(addSpy).toHaveBeenCalledWith({
       name: 'any_name',
@@ -217,12 +218,12 @@ describe('Sugnup Controller', () => {
     })
   })
 
-  test('Should returns 500 if AddAccount throws', () => {
+  test('Should returns 500 if AddAccount throws', async () => {
     const { sut, addAccountStub } = makeSut()
 
     jest.spyOn(addAccountStub, 'add')
-      .mockImplementationOnce(() => {
-        throw new Error()
+      .mockImplementationOnce(async () => {
+        return await Promise.reject(new Error())
       })
 
     const httpRequest = {
@@ -233,7 +234,7 @@ describe('Sugnup Controller', () => {
         passwordConfirmation: 'any_password_123'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(
@@ -241,7 +242,7 @@ describe('Sugnup Controller', () => {
     )
   })
 
-  test('Should returns 200 if valid data is provided', () => {
+  test('Should returns 200 if valid data is provided', async () => {
     const { sut } = makeSut()
 
     const httpRequest = {
@@ -252,7 +253,7 @@ describe('Sugnup Controller', () => {
         passwordConfirmation: 'valid_password'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(200)
     expect(httpResponse.body).toEqual({
